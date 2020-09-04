@@ -1,0 +1,122 @@
+package com.dropwizard.demo.testapachespark;
+
+import java.util.Properties;
+
+import org.apache.spark.SparkConf;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SaveMode;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.StructType;
+
+
+public class ApacheSparkTest {
+	
+	public static void main(String[] args) {
+
+		System.setProperty("hadoop.home.dir", "c:\\winutils\\");
+		
+	SparkConf sparkConf = new SparkConf().setAppName("JavSparkSqlDemo").setMaster("local");
+	
+	SparkSession sparkSession = SparkSession.builder().config(sparkConf)
+//			.config("spark.sql.catalogImplementation","hive")
+//			.enableHiveSupport()
+			.getOrCreate();
+	StructType employeeSchema = new StructType()
+//			.add("id", "int")
+			.add("name", "string")
+			.add("age", "int")
+			.add("email", "string")
+			.add("username", "string")
+			.add("password", "string")
+			.add("isActive", "string");
+
+	Properties connection = new Properties();
+	connection.put("driver",  "org.h2.Driver");
+	connection.put("user", "sa");
+	connection.put("password", ""); 
+	
+	// Read CSV File
+	Dataset<Row> employeeDF = 
+			sparkSession.read().format("csv").
+			option("header", "true")
+			.schema(employeeSchema)
+			.option("mode", "DROPMALFORMED").
+			load("userdata.csv");
+//			.write().mode(SaveMode.Append).jdbc("jdbc:h2:tcp://localhost/~/dwcruddemo", "employee", connection);
+
+	
+//	employeeDF.createOrReplaceTempView("employee_view");
+//	employeeDF.write().mode(SaveMode.Append).jdbc("jdbc:h2:tcp://localhost/~/dwcruddemo", "employee", connection);
+//	sparkSession.sql("create table IF NOT EXISTS employeeTable as select * from employee").write().mode(SaveMode.Append).jdbc("jdbc:h2:tcp://localhost/~/dwcruddemo", "employee", connection);
+//			df.show();
+	
+//	df.write().mode(SaveMode.Append).jdbc("jdbc:h2:tcp://localhost/~/dwcruddemo", "employee", connection);
+//	System.out.println("Data Inserted...");
+	
+	
+	//Read data from Database
+	
+	
+//	Read JSON File 
+//	Dataset<Row> df = spark.read().json("examples/src/main/resources/people.json");
+			
+//	Dataset<Row> updatedDf = df.select(df.col("name"),
+//				df.col("age"), df.col("email"), df.col("username"), df.col("password"),
+//						df.col("isActive"));
+//			updatedDf.show();
+			
+			
+//	SQLContext sqlContext = new SQLContext(sparkSession);
+	
+//	Dataset<Row> sqlDF = sqlContext.read().format("csv").
+//			option("header", "true").schema(schema).option("mode", "DROPMALFORMED").
+//			load("userdata.csv");
+	
+//	JavaRDD<String> employeeRDD = sparkSession.sparkContext().textFile("userdata.txt", 1).toJavaRDD();
+//	JavaRDD<Row> employeeRDD = sparkSession.read().format("csv").schema(employeeSchema).load("userdata.csv").toJavaRDD();
+	
+//	Dataset<Row> 
+//	employeeDF = sparkSession.read()
+//			  .format("jdbc")
+//			  .option("url", "jdbc:h2:tcp://localhost/~/dwcruddemo")
+//			  .option("dbtable", "employee")
+//			  .option("user", "sa")
+//			  .option("password", "")
+//			  .load();
+	
+//	Properties connection = new Properties();
+//	connection.put("user", "sa");
+//	connection.put("password", "");
+//	
+//	Dataset<Row> jdbcDF2 = sparkSession.read()
+//			  .jdbc("jdbc:h2:tcp://localhost/~/dwcruddemo", "employee", connection);
+	
+	employeeDF.write()
+	  .format("jdbc")
+	  .mode(SaveMode.Append)
+	  .option("url", "jdbc:h2:tcp://localhost/~/dwcruddemo")
+	  .option("dbtable", "employee")
+	  .option("user", "sa")
+	  .option("password", "")
+	  .save();
+	
+	sparkSession.read().jdbc("jdbc:h2:tcp://localhost/~/dwcruddemo", "employee", connection).show();
+
+//	jdbcDF2.write()
+//	  .jdbc("jdbc:h2:tcp://localhost/~/dwcruddemo", "employee", connection);
+
+	
+//	DataFrame schemaEmployee = sqlContext.createDataFrame(Employee )
+//	sqlDF.createOrReplaceTempView("employee");
+	
+//	Dataset<Row> sqlResult = sqlContext.sql("SELECT * FROM employee ");
+//	sqlResult.show();
+	
+
+//	System.out.println("Spark Demo ended....");
+
+	
+	}
+			
+}

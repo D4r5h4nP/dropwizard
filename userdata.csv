@@ -1,0 +1,4 @@
+name,age,email,username,password,isActive
+harsh,24,harsh@gmail.com,HarsH,HarsH123,FALSE
+jacky,25,jacky@gmail.com,JackY,JackY111,FALSE
+ravi,26,ravi@gmail.com,RavI,RavI123,FALSE
